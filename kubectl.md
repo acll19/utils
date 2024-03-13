@@ -44,9 +44,29 @@ PGPASSWORD=$POSTGRES_PASSWORD psql -U $POSTGRES_USER -h $POSTGRES_HOST -d $POSTG
 ```
 
 ## Debugging
-<!-- List of pod events with specific reason -->
+
 ```bash
+# List of pod events with specific reason
 kubectl get events \
     --field-selector type=Warning,reason=BackOff,involvedObject=Pod \
     --all-namespaces
+
+# List all names of a resource with a specific annotation/value filter
+QUERY='.items[].metadata|select(.annotations."<ANNOTATION>"!=null)|.name'
+kubectl get <RESOURCE> -ojson | jq $QUERY
+
+# List all names of a resource with a specific label/value filter
+QUERY='.items[].metadata|select(.labels."<ANNOTATION>"!=null)|.name'
+kubectl get <RESOURCE> -ojson | jq $QUERY
+
+# List all pods whose service acccount is the default
+kubeclt get pods \
+    --all-namespaces \
+    -o jsonpath='{range .items[?(@.spec.serviceAccountName == "default")]}{.metadata.namespace} {.metadata.name}{"\n"}{end}' 2>/dev/null
+
+# List number of pods in a cluster
+kubectl get pods \
+    --all-namespaces \
+    --field-selector=status.phase!=Succeeded,status.phase!=Failed \
+    --output json | jq -j '.items | length'
 ```
