@@ -42,3 +42,11 @@ PGPASSWORD=$POSTGRES_PASSWORD psql -U $POSTGRES_USER -h $POSTGRES_HOST -d $POSTG
 # set output to file
 \o /path/to/file.txt
 ```
+
+## Debugging
+<!-- List of pod events with specific reason -->
+```bash
+kubectl get events \
+    --field-selector type=Warning,reason=BackOff,involvedObject=Pod \
+    --all-namespaces
+```
